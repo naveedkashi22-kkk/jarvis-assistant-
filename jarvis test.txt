@@ -1,0 +1,28 @@
+import os
+import requests
+import json
+
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    print("GEMINI_API_KEY not set. Please run the setx command and re-open the terminal.")
+    raise SystemExit(1)
+
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+prompt = "Explain how AI works in a few words"
+
+payload = {
+    "contents": [
+        {"parts": [{"text": prompt}]}
+    ]
+}
+
+try:
+    resp = requests.post(url, json=payload, timeout=20)
+    resp.raise_for_status()
+    j = resp.json()
+    text = j["candidates"][0]["content"]["parts"][0]["text"]
+    print("Gemini response:\n")
+    print(text)
+except Exception as e:
+    print("Error calling Gemini API:", e)
+    print("Full response (if any):", resp.text if 'resp' in locals() else "")
